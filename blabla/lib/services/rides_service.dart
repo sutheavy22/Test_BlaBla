@@ -9,7 +9,9 @@ class RidesService {
   //  filter the rides starting from given departure location
   //
   static List<Ride> _filterByDeparture(List<Ride> rides, Location departure) {
-    return [];
+    return availableRides
+        .where((ride) => ride.departureLocation == departure)
+        .toList();
   }
 
   //
@@ -19,7 +21,9 @@ class RidesService {
     List<Ride> rides,
     int requestedSeat,
   ) {
-    return [];
+    return rides
+        .where((ride) => ride.availableSeats == _filterBySeatRequested)
+        .toList();
   }
 
   //
