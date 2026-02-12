@@ -1,3 +1,5 @@
+import 'package:blabla/services/locations_service.dart';
+import 'package:blabla/ui/widgets/actions/bla_button.dart';
 import 'package:flutter/material.dart';
  
 import '../../../../model/ride/locations.dart';
@@ -24,10 +26,9 @@ class RidePrefForm extends StatefulWidget {
 
 class _RidePrefFormState extends State<RidePrefForm> {
   Location? departure;
-  late DateTime departureDate;
   Location? arrival;
-  late int requestedSeats;
-
+  DateTime departureDate = DateTime.now();
+  int requestedSeats = 1;
 
 
   // ----------------------------------
@@ -35,10 +36,18 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
 
   @override
-  void initState() {
+   void initState() {
     super.initState();
-    // TODO 
+    // TODO
+    if (widget.initRidePref != null) {
+      departure = widget.initRidePref!.departure;
+      arrival = widget.initRidePref!.arrival;
+      departureDate = widget.initRidePref!.departureDate;
+      requestedSeats = widget.initRidePref!.requestedSeats;
+    }
   }
+   bool get isValid =>
+      departure != null && arrival != null && requestedSeats > 0;
 
   // ----------------------------------
   // Handle events
@@ -53,13 +62,55 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
   // Build the widgets
   // ----------------------------------
+  
   @override
   Widget build(BuildContext context) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [ 
- 
-        ]);
+      children: [
+        DropdownButtonFormField<Location>(
+          value: departure,
+          hint: const Text("Leaving from"),
+          items: LocationsService.availableLocations
+              .map(
+                (loc) => DropdownMenuItem(
+                  value: loc,
+                  child: Text("${loc.name}, ${loc.country.name}"),
+                ),
+              )
+              .toList(),
+          onChanged: (v) => setState(() => departure = v),
+        ),
+
+        const SizedBox(height: 12),
+
+        DropdownButtonFormField<Location>(
+          value: arrival,
+          hint: const Text("Going to"),
+          items: LocationsService.availableLocations
+              .map(
+                (loc) => DropdownMenuItem(
+                  value: loc,
+                  child: Text("${loc.name}, ${loc.country.name}"),
+                ),
+              )
+              .toList(),
+          onChanged: (v) => setState(() => arrival = v),
+        ),
+
+        const SizedBox(height: 12),
+
+        TextFormField(
+          decoration: const InputDecoration(labelText: "Seats"),
+          keyboardType: TextInputType.number,
+          initialValue: "1",
+          onChanged: (v) =>
+              setState(() => requestedSeats = int.tryParse(v) ?? 1),
+        ),
+
+        const SizedBox(height: 16),
+
+        BlaButton(label: "Search", onPressed: isValid ? () {} : null),
+      ],
+    );
   }
 }
